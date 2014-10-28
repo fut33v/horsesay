@@ -1,0 +1,7 @@
+*.swp
+*.json
+.ropeproject
+.vk-commits
+.lastcommit
+.post-tmp
+.suda_podoidi.json
