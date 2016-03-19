@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 
 import urllib
@@ -70,48 +71,49 @@ def in_dict(dictionary, element):
 
 
 if __name__ == "__main__":
-    CLUB_ID = -66178227
-    POSTS_NUMBER = 100
-    POST_TMP_FILE = ".post_tmp"
-    POSTS_FILE = ".suda_podoidi.json"
-
-    network_error = False
-    horse_wall = None
     try:
-        horse_wall = wall_get(CLUB_ID, POSTS_NUMBER)
-    except urllib2.URLError as e:
-        print e.reason
-        network_error = True
+        CLUB_ID = -66178227
+        POSTS_NUMBER = 100
+        POST_TMP_FILE = ".post_tmp"
+        POSTS_FILE = ".suda_podoidi.json"
 
-    if network_error:
-        if not os.path.exists(POSTS_FILE):
-            print "Network error and no posts"
-            exit()
+        network_error = False
+        horse_wall = None
+        try:
+            horse_wall = wall_get(CLUB_ID, POSTS_NUMBER)
+        except urllib2.URLError as e:
+            # print e.reason
+            network_error = True
+
+        if network_error:
+            if not os.path.exists(POSTS_FILE):
+                print "Чо с инетом, уёба????"
+                exit()
+            else:
+                posts = load_json_file(POSTS_FILE)
         else:
-            posts = load_json_file(POSTS_FILE)
-    else:
-        posts = []
-        items = in_dict(horse_wall, 'items')
-        if items:
-            for item in items:
-                post = in_dict(item, 'text')
-                if post:
-                    posts.append(post)
-            save_json_file(POSTS_FILE, posts)
+            posts = []
+            items = in_dict(horse_wall, 'items')
+            if items:
+                for item in items:
+                    post = in_dict(item, 'text')
+                    if post:
+                        posts.append(post)
+                save_json_file(POSTS_FILE, posts)
+            else:
+                exit()
+
+        r = random.randint(0, len(posts))
+        random_post = posts[r].encode('utf8', 'replace')
+        open(POST_TMP_FILE, 'w').write(random_post)
+        horsesay = "cat " + POST_TMP_FILE + " | cowsay -f pony"
+
+        if which('cowsay') is None:
+            print (
+                "Где 'cowsay' уёба???\n" +
+                "пропиши: sudo apt-get install cowsay"
+            )
         else:
-            exit()
-
-
-    r = random.randint(0, len(posts))
-    random_post = posts[r].encode('utf8', 'replace')
-    open(POST_TMP_FILE, 'w').write(random_post)
-    horsesay = "cat " + POST_TMP_FILE + " | cowsay -f pony"
-
-    if which('cowsay') is None:
-        print (
-            "Seems like 'cowsay' not installed on your PC, " +
-            "on Debian/Ubuntu/Mint:\n" +
-            "type: sudo apt-get install cowsay"
-        )
-    else:
-        os.system(horsesay)
+            os.system(horsesay)
+    except Exception as e:
+        print "Сегодня обойдёшься без мудростей Коня"
